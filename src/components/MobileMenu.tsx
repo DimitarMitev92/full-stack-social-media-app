@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import {
+  ClerkLoaded,
+  ClerkLoading,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +40,14 @@ const MobileMenu = () => {
           <Link href="/">Friends</Link>
           <Link href="/">Groups</Link>
           <Link href="/">Stories</Link>
-          <Link href="/">Login</Link>
+          <SignedOut>
+            <Link href="/sign-in" onClick={() => setIsOpen(false)}>
+              Login
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       )}
     </div>
