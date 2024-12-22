@@ -4,6 +4,7 @@ import { User } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import UserInfoCardInteraction from "./UserInfoCardInteraction";
+import UpdateUser from "./updateUser";
 
 const UserInfoCard = async ({ user }: { user?: User }) => {
   if (!user) return null;
@@ -56,9 +57,13 @@ const UserInfoCard = async ({ user }: { user?: User }) => {
       {/* TOP */}
       <div className="flex justify-between items-center font-medium">
         <span className="text-gray-500">User Information</span>
-        <Link href="/" className="text-blue-500 text-sm">
-          See all
-        </Link>
+        {currentUserId === user.id ? (
+          <UpdateUser />
+        ) : (
+          <Link href="/" className="text-blue-500 text-sm">
+            See all
+          </Link>
+        )}
       </div>
       {/* BOTTOM */}
       <div className="flex flex-col gap-4 text-gray-500">
@@ -109,13 +114,14 @@ const UserInfoCard = async ({ user }: { user?: User }) => {
             <span>Joined {formattedDate}</span>
           </div>
         </div>
-        <UserInfoCardInteraction
-          userId={user.id}
-          currentUserId={currentUserId}
-          isUserBlocked={isUserBlocked}
-          isFollowing={isFollowing}
-          isFollowingSend={isFollowingSend}
-        />
+        {currentUserId && currentUserId !== user.id && (
+          <UserInfoCardInteraction
+            userId={user.id}
+            isUserBlocked={isUserBlocked}
+            isFollowing={isFollowing}
+            isFollowingSend={isFollowingSend}
+          />
+        )}
       </div>
     </div>
   );
