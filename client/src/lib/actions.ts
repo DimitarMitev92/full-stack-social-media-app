@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { use } from "react";
+import { z } from "zod";
 
 export const switchFollow = async (userId: string) => {
   const { userId: currentUserId } = auth() as { userId: string };
@@ -147,5 +148,48 @@ export const declineFollowRequest = async (userId: string) => {
   } catch (error) {
     console.log(error);
     throw new Error("Something went wrong");
+  }
+};
+
+export const UpdateProfile = async (formData: FormData) => {
+  const fields = Object.fromEntries(formData);
+
+  const filteredFields = Object.fromEntries(
+    Object.entries(fields).filter(([key, value]) => value !== "")
+  );
+
+  const Profile = z.object({
+    cover: z.string().optional(),
+    name: z.string().max(50).optional(),
+    surname: z.string().max(50).optional(),
+    description: z.string().max(500).optional(),
+    city: z.string().max(50).optional(),
+    school: z.string().max(50).optional(),
+    work: z.string().max(50).optional(),
+    website: z.string().max(50).optional(),
+  });
+
+  const validatedFields = Profile.safeParse(filteredFields);
+
+  if (!validatedFields.success) {
+    console.log(validatedFields.error.flatten().fieldErrors);
+    return "err";
+  }
+
+  const { userId } = auth();
+
+  if (!userId) {
+    return "err";
+  }
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: validatedFields.data,
+    });
+  } catch (err) {
+    console.log(err);
   }
 };
